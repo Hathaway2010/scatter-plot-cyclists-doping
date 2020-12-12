@@ -1,0 +1,116 @@
+const w = 1000;
+const h = 500;
+const padding = 60;
+d3.select("#all").append("svg")
+  .attr("id", "chart")
+  .attr("width", w)
+  .attr("height", h);
+d3.select("#all").append("div")
+  .attr("id", "tooltip")
+  .style("opacity", 0)
+  .html("<p>Placeholder</p>")
+d3.select("#all").append("div")
+  .attr("id", "legend-holder")
+  .style("left", `${w - padding}px`)
+  .style("top", `${h - padding - 150}px`);
+d3.select("#legend-holder").append("svg")
+  .attr("id", "legend")
+d3.select("#legend").append("circle")
+  .attr("cy", "10px")
+  .attr("cx", "10px")
+  .attr("r", 5)
+  .attr("stroke", "black")
+  .style("fill", "magenta")
+d3.select("#legend").append("circle")
+  .attr("cy", "50px")
+  .attr("cx", "10px")
+  .attr("r", 5)
+  .attr("stroke", "black")
+  .style("fill", "Chartreuse")
+d3.select("#legend").append("text")
+  .attr("y", "15px")
+  .attr("x", "20px")
+  .text("Suspected of doping")
+d3.select("#legend").append("text")
+  .attr("y", "55px")
+  .attr("x", "20px")
+  .text("Not suspected of doping")
+d3.select("svg").append("text")
+  .attr("id", "title")
+  .attr("x", w / 2)
+  .attr("y", padding / 2)
+  .attr("text-anchor", "middle")
+  .text("Cycling Records")
+
+
+  
+  
+const req = new XMLHttpRequest();
+req.open("GET", "https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/cyclist-data.json", true);
+req.send();
+req.onload = () => {
+  const data = JSON.parse(req.responseText);
+  let years = [];
+  let times = [];
+  let yearTimeArr = [];
+  for (let i = 0; i < data.length; i++) {
+    let year = new Date(Number(data[i].Year), 0, 1, 0, 0, 0);
+    console.log(year.toLocaleDateString())
+    years.push(year);
+    let time = new Date(1970, 0, 1, 0, Number(data[i].Time.slice(0, 2)), Number(data[i].Time.slice(3)));
+    times.push(time);
+    yearTimeArr.push([data[i].Place, year, time]);
+  }
+  const xScale = d3.scaleTime()
+  .domain([d3.min(years), d3.max(years)])
+  .range([padding, w - padding]);
+  const yScale = d3.scaleTime()
+  .domain([d3.min(times), d3.max(times)])
+  .range([h - padding, padding]);
+  
+  const xAxis = d3.axisBottom(xScale)
+  .ticks(11, "%Y");
+  d3.select("svg").append("g")
+  .attr("transform", `translate(0, ${h - padding})`)
+  .attr("id", "x-axis")
+  .call(xAxis);
+  const yAxis = d3.axisLeft(yScale)
+   .ticks(10, "%M:%S");
+  d3.select("svg").append("g")
+  .attr("transform", `translate(${padding}, 0)`)
+  .attr("id", "y-axis")
+  .call(yAxis);
+  
+  d3.select("svg").selectAll("circle")
+  .data(yearTimeArr)
+  .enter()
+  .append("circle")
+  .attr("cx", d => xScale(d[1]))
+  .attr("cy", d => yScale(d[2]))
+  .attr("r", 5)
+  .attr("class", "dot")
+  .attr("fill", (d, i) => {
+    if (data[i].Doping == "") {
+      return "Chartreuse";
+    } else {
+      return "magenta";
+    }
+  })
+  .attr("data-xvalue", d => d[1])
+  .attr("data-yvalue", d => d[2])
+  .on("mouseover", (d, i) => {
+    let index = yearTimeArr.indexOf(i);
+    let info = data[index];
+    d3.select("#tooltip")
+      .style("opacity", 1)
+      .attr("data-year", i[1])
+      .style("left", `${xScale(i[1]) + padding + 100}px`)
+      .style("top", `${yScale(i[2])}px`)
+      .html(`<div>${info.Name}<br> ${info.Time} <br>${info.Year}</div>`);
+  })
+      .on("mouseout", () => {
+    d3.select("#tooltip").style("opacity",
+                               0); 
+ });
+  
+}

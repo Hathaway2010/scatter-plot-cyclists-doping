@@ -1,0 +1,38 @@
+body {
+  background-color: gray;
+}
+#chart {
+  background-color: white;
+  display: block;
+  margin: auto;
+  box-shadow: 2px 2px 10px black;
+}
+#tooltip {
+  background-color: Chartreuse;
+  position: absolute;
+  font-family: sans-serif;
+  font-size: 12px;
+  padding: 10px;
+  pointer-events: none;
+}
+#title {
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 30px;
+  text-shadow: 1px 1px 5px;
+}
+.dot {
+  stroke: black;
+}
+#legend-holder {
+  background-color: Gray;
+  position: absolute;
+  font-family: sans-serif;
+  font-size: 12px;
+  padding: 20px;  
+  box-shadow: 2px 2px 5px black;
+}
+#legend {
+  width: 150px;
+  height: 60px;
+}
